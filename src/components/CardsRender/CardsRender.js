@@ -47,7 +47,7 @@ const CardWrapper = styled(motion.a)`
   display: flex;
   flex-direction: column;
   border-radius: 8px;
-  background-color: var(--color-elements-${(p) => p.themestate});
+  background-color: var(--color-elements-${(p) => p["data-themestate"]});
   cursor: pointer;
   width: 260px;
   transition: all 0.3s ease-in-out;
@@ -163,12 +163,10 @@ export const fadeIn = {
 function Row({ index, data, style }) {
   const { items, theme } = data;
   const item = items[index];
+  const encodedURI = encodeURI(`/frontendmentor_17/country/${item.name}`);
 
   return (
-    <Link
-      key={`${item.name}${index}`}
-      href={`/frontendmentor_17/country/${item.name}`}
-    >
+    <Link key={`${item.name}${index}`} href={encodedURI}>
       <CardWrapper
         key={`${item.name}${index}`}
         layoutId={`card-${item.name}`}
@@ -244,7 +242,7 @@ function CardsRender() {
         {items.map((item, index) => (
           <Link
             key={`${item.name}${index}`}
-            href={`/frontendmentor_17/country/${item.name}`}
+            href={encodeURI(`/frontendmentor_17/country/${item.name}`)}
           >
             {/* <CardWrapper themestate={theme}> */}
             <CardWrapper
@@ -253,7 +251,7 @@ function CardsRender() {
               as={CardWrapper}
               initial={fadeInOut.initial}
               animate={fadeInOut.animate}
-              themestate={theme}
+              data-themestate={theme}
               variants={fadeIn}
               exit={fadeInOut.exit}
               transition={fadeInOut.transition}
