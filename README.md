@@ -38,6 +38,7 @@ Users should be able to:
 
 ### Built with
 
+- [wouter](https://github.com/molefrog/wouter) - For routing
 - [downshift](https://github.com/downshift-js/downshift) - For a combobox and selection baseline
 - [react-window](https://github.com/bvaughn/react-window) - For performance optimization and virtualization
 - [framer-motion](https://www.framer.com/motion/) - For animations and transitions
