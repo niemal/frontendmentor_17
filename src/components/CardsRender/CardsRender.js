@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NotFound } from "../Country";
 import { QUERIES } from "../constants";
 import { FixedSizeList as List } from "react-window";
+import { isMobile } from "react-device-detect";
 
 const Wrapper = styled.div`
   padding-top: 16px;
@@ -50,6 +51,7 @@ const CardWrapper = styled(motion.a)`
   cursor: pointer;
   width: 260px;
   transition: all 0.3s ease-in-out;
+  opacity: 1;
   /* } */
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
@@ -218,65 +220,8 @@ function CardsRender() {
     );
   }
 
-  return (
-    <>
-      <Wrapper>
-        <AnimatePresence mode={"wait"}>
-          {items.map((item, index) => (
-            <Link
-              key={`${item.name}${index}`}
-              href={`/frontendmentor_17/country/${item.name}`}
-            >
-              {/* <CardWrapper themestate={theme}> */}
-              <CardWrapper
-                key={`${item.name}${index}`}
-                layoutId={`card-${item.name}`}
-                as={CardWrapper}
-                initial={fadeInOut.initial}
-                animate={fadeInOut.animate}
-                themestate={theme}
-                variants={fadeIn}
-                exit={fadeInOut.exit}
-                transition={fadeInOut.transition}
-              >
-                <FlagContainer>
-                  <Image
-                    src={item.flags.png}
-                    alt={`${item ? item?.name : ""} search result flag image`}
-                  />
-                </FlagContainer>
-                <TextWrapper themestate={theme}>
-                  <CountryName themestate={theme}>{item.name}</CountryName>
-                  <TextRow first={true}>
-                    <TextRowIntro
-                      themestate={theme}
-                    >{`Population:`}</TextRowIntro>
-                    <TextRowValue themestate={theme}>
-                      {item.population
-                        .toString()
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                    </TextRowValue>
-                  </TextRow>
-                  <TextRow>
-                    <TextRowIntro themestate={theme}>{`Region:`}</TextRowIntro>
-                    <TextRowValue themestate={theme}>
-                      {item.region}
-                    </TextRowValue>
-                  </TextRow>
-                  <TextRow>
-                    <TextRowIntro themestate={theme}>{`Capital:`}</TextRowIntro>
-                    <TextRowValue themestate={theme}>
-                      {item.capital}
-                    </TextRowValue>
-                  </TextRow>
-                </TextWrapper>
-              </CardWrapper>
-              {/* </CardWrapper> */}
-            </Link>
-          ))}
-        </AnimatePresence>
-      </Wrapper>
-
+  if (isMobile) {
+    return (
       <MobileWrapper>
         <AnimatePresence mode={"wait"}>
           <List
@@ -290,7 +235,62 @@ function CardsRender() {
           </List>
         </AnimatePresence>
       </MobileWrapper>
-    </>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <AnimatePresence mode={"wait"}>
+        {items.map((item, index) => (
+          <Link
+            key={`${item.name}${index}`}
+            href={`/frontendmentor_17/country/${item.name}`}
+          >
+            {/* <CardWrapper themestate={theme}> */}
+            <CardWrapper
+              key={`${item.name}${index}`}
+              layoutId={`card-${item.name}`}
+              as={CardWrapper}
+              initial={fadeInOut.initial}
+              animate={fadeInOut.animate}
+              themestate={theme}
+              variants={fadeIn}
+              exit={fadeInOut.exit}
+              transition={fadeInOut.transition}
+            >
+              <FlagContainer>
+                <Image
+                  src={item.flags.png}
+                  alt={`${item ? item?.name : ""} search result flag image`}
+                />
+              </FlagContainer>
+              <TextWrapper themestate={theme}>
+                <CountryName themestate={theme}>{item.name}</CountryName>
+                <TextRow first={true}>
+                  <TextRowIntro
+                    themestate={theme}
+                  >{`Population:`}</TextRowIntro>
+                  <TextRowValue themestate={theme}>
+                    {item.population
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                  </TextRowValue>
+                </TextRow>
+                <TextRow>
+                  <TextRowIntro themestate={theme}>{`Region:`}</TextRowIntro>
+                  <TextRowValue themestate={theme}>{item.region}</TextRowValue>
+                </TextRow>
+                <TextRow>
+                  <TextRowIntro themestate={theme}>{`Capital:`}</TextRowIntro>
+                  <TextRowValue themestate={theme}>{item.capital}</TextRowValue>
+                </TextRow>
+              </TextWrapper>
+            </CardWrapper>
+            {/* </CardWrapper> */}
+          </Link>
+        ))}
+      </AnimatePresence>
+    </Wrapper>
   );
 }
 
