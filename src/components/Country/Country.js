@@ -8,6 +8,7 @@ import { useHistory } from "./useHistory";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { QUERIES } from "../constants";
+import ClickableWrapper from "../ClickableWrapper";
 
 const Wrapper = styled(motion.div)`
   padding-top: 72px;
@@ -28,7 +29,7 @@ const Wrapper = styled(motion.div)`
   }
 `;
 
-const GoBackButton = styled.a`
+const GoBackButton = styled.button`
   text-decoration: none;
   justify-self: start;
   display: flex;
@@ -42,6 +43,16 @@ const GoBackButton = styled.a`
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   border-radius: 8px;
+
+  &:focus {
+    ${(p) =>
+      p.isKeyboardFocused
+        ? `
+    outline: 3px solid var(--color-text-${p.themestate});
+    outline-offset: 4px;
+    `
+        : ""}
+  }
 
   ${hoverSupported(css`
     &:hover {
@@ -104,15 +115,17 @@ export const NotFound = ({ children, filter }) => {
         transition={fadeInOut.transition}
       >
         {!filter && (
-          <GoBackButton themestate={theme} onClick={goBack}>
-            <IconContainer>
-              <Image
-                src={`/frontendmentor_17/arrow-${theme}-icon.svg`}
-                alt={`${theme === 0 ? "light" : "dark"} go back icon image`}
-              />
-            </IconContainer>
-            <ButtonText themestate={theme}>Back</ButtonText>
-          </GoBackButton>
+          <ClickableWrapper themestate={theme} onClick={goBack}>
+            <GoBackButton>
+              <IconContainer>
+                <Image
+                  src={`/frontendmentor_17/arrow-${theme}-icon.svg`}
+                  alt={`${theme === 0 ? "light" : "dark"} go back icon image`}
+                />
+              </IconContainer>
+              <ButtonText themestate={theme}>Back</ButtonText>
+            </GoBackButton>
+          </ClickableWrapper>
         )}
         <NoMatchesFound themestate={theme}>{children}</NoMatchesFound>
       </Wrapper>
@@ -213,6 +226,16 @@ const BorderLink = styled.a`
     0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 0.3s ease-in-out;
 
+  &:focus {
+    ${(p) =>
+      p.isKeyboardFocused
+        ? `
+      outline: 3px solid var(--color-text-${p.themestate});
+      outline-offset: -3px;
+    `
+        : ""}
+  }
+
   ${hoverSupported(css`
     &:hover {
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1),
@@ -252,15 +275,17 @@ function Country({ country }) {
         exit={fadeInOut.exit}
         transition={fadeInOut.transition}
       >
-        <GoBackButton themestate={theme} onClick={goBack}>
-          <IconContainer>
-            <Image
-              src={`/frontendmentor_17/arrow-${theme}-icon.svg`}
-              alt={`${theme === 0 ? "light" : "dark"} go back icon image`}
-            />
-          </IconContainer>
-          <ButtonText themestate={theme}>Back</ButtonText>
-        </GoBackButton>
+        <ClickableWrapper themestate={theme} onClick={goBack}>
+          <GoBackButton>
+            <IconContainer>
+              <Image
+                src={`/frontendmentor_17/arrow-${theme}-icon.svg`}
+                alt={`${theme === 0 ? "light" : "dark"} go back icon image`}
+              />
+            </IconContainer>
+            <ButtonText themestate={theme}>Back</ButtonText>
+          </GoBackButton>
+        </ClickableWrapper>
 
         <Container>
           <BigFlagImage src={item.flags.svg} alt={`${item.name} flag image`} />
@@ -341,7 +366,13 @@ function Country({ country }) {
                     key={`border-${name}`}
                     href={`/frontendmentor_17/country/${name}`}
                   >
-                    <BorderLink themestate={theme}>{name}</BorderLink>
+                    <ClickableWrapper
+                      onClick={() => {
+                        window.location = `/frontendmentor_17/country/${name}`;
+                      }}
+                    >
+                      <BorderLink themestate={theme}>{name}</BorderLink>
+                    </ClickableWrapper>
                   </Link>
                 ))}
               </BordersRow>

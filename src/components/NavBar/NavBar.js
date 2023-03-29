@@ -4,6 +4,7 @@ import { MainContext } from "../MainBody";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { QUERIES } from "../constants";
+import ClickableWrapper from "../ClickableWrapper";
 
 const Wrapper = styled.div`
   min-width: 100%;
@@ -37,6 +38,16 @@ const Title = styled.a`
   transition: all 0.3s ease-in-out;
   user-select: none;
 
+  &:focus {
+    ${(p) =>
+      p.isKeyboardFocused
+        ? `
+    outline: 3px solid var(--color-text-${p.themestate});
+    outline-offset: 6px;
+    `
+        : ""}
+  }
+
   @media ${QUERIES.phoneAndSmaller} {
     font-size: ${16 / 16}rem;
   }
@@ -48,6 +59,18 @@ const ThemeSwitchWrapper = styled(motion.div)`
   gap: 16px;
   align-items: start;
   cursor: pointer;
+
+  transition: all 0.3s ease-in-out;
+
+  &:focus {
+    ${(p) =>
+      p.isKeyboardFocused
+        ? `
+    outline: 2px solid var(--color-text-${p.themestate});
+    outline-offset: 4px;
+    `
+        : ""}
+  }
 `;
 
 const ThemeIconContainer = styled(motion.div)`
@@ -118,30 +141,40 @@ function NavBar() {
   return (
     <Wrapper themestate={theme}>
       <Container>
-        <Link href={"/frontendmentor_17/"}>
-          <Title themestate={theme}>Where in the world?</Title>
-        </Link>
+        <ClickableWrapper
+          href={"/frontendmentor_17/"}
+          onClick={() => {
+            window.location = "/frontendmentor_17/";
+          }}
+          themestate={theme}
+        >
+          <Title>Where in the world?</Title>
+        </ClickableWrapper>
 
-        <ThemeSwitchWrapper onClick={handleThemeSwitch}>
-          <AnimatePresence>
-            <ThemeIconContainer
-              key={theme}
-              exit="exit"
-              initial="hidden"
-              animate={animationControl}
-              variants={zoomOutIn}
-            >
-              <Image
+        <ClickableWrapper onClick={handleThemeSwitch} themestate={theme}>
+          <ThemeSwitchWrapper>
+            <AnimatePresence>
+              <ThemeIconContainer
                 key={theme}
-                src={`/frontendmentor_17/theme-${theme === 0 ? 1 : 0}-icon.svg`}
-                alt={`${theme === 0 ? "dark" : "light"} theme icon image`}
-              />
-            </ThemeIconContainer>
-          </AnimatePresence>
-          <ModeText themestate={theme}>
-            {theme === 0 ? "Dark Mode" : "Light Mode"}
-          </ModeText>
-        </ThemeSwitchWrapper>
+                exit="exit"
+                initial="hidden"
+                animate={animationControl}
+                variants={zoomOutIn}
+              >
+                <Image
+                  key={theme}
+                  src={`/frontendmentor_17/theme-${
+                    theme === 0 ? 1 : 0
+                  }-icon.svg`}
+                  alt={`${theme === 0 ? "dark" : "light"} theme icon image`}
+                />
+              </ThemeIconContainer>
+            </AnimatePresence>
+            <ModeText themestate={theme}>
+              {theme === 0 ? "Dark Mode" : "Light Mode"}
+            </ModeText>
+          </ThemeSwitchWrapper>
+        </ClickableWrapper>
       </Container>
     </Wrapper>
   );

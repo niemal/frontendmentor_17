@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FixedSizeList as List } from "react-window";
 import { QUERIES } from "../constants";
 import { isMobile } from "react-device-detect";
+import ClickableWrapper from "../ClickableWrapper";
 
 const Wrapper = styled.div`
   position: relative;
@@ -131,6 +132,58 @@ const FilterEntryWrapper = styled.div`
   }
 `;
 
+const FilterEntryComponent = ({
+  themestate,
+  style,
+  children,
+  highlighted,
+  selected,
+  item,
+  index,
+  getItemProps,
+  onFocus,
+  onBlur,
+  onKeyDown,
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (highlighted) {
+      setIsFocused(true);
+    } else {
+      setIsFocused(false);
+    }
+  }, [highlighted]);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    onFocus(index);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    onBlur(index);
+  };
+
+  return (
+    <FilterEntryWrapper
+      {...getItemProps({ item, index })}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onKeyDown={onKeyDown}
+      tabIndex={0}
+      style={{
+        ...style,
+        backgroundColor: isFocused
+          ? `var(--color-input-${themestate})`
+          : `var(--color-elements-${themestate})`,
+      }}
+    >
+      {children}
+    </FilterEntryWrapper>
+  );
+};
+
 const FilterEntryDetailsWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -229,6 +282,41 @@ function Input() {
   }, [inputValue, region]);
 
   const [isItemsEmpty, setIsItemsEmpty] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [isArrowKeyPressed, setIsArrowKeyPressed] = useState(false);
+
+  const handleFocus = (index) => {
+    if (!isArrowKeyPressed) {
+      setFocusedIndex(index);
+    }
+  };
+
+  const handleBlur = (index) => {
+    if (!isArrowKeyPressed) {
+      setFocusedIndex(-1);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      setIsArrowKeyPressed(true);
+      const nextIndex =
+        event.key === "ArrowDown"
+          ? Math.min(focusedIndex + 1, filteredItems.length - 1)
+          : Math.max(focusedIndex - 1, 0);
+      setFocusedIndex(nextIndex);
+      event.preventDefault();
+    } else if (event.key === "Enter" && focusedIndex >= 0) {
+      getItemProps({
+        item: items[focusedIndex],
+        index: focusedIndex,
+      }).onClick();
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+    } else {
+      setIsArrowKeyPressed(false);
+    }
+  };
 
   useEffect(() => {
     setItems(filteredItems);
@@ -241,9 +329,16 @@ function Input() {
   return (
     <Wrapper>
       <InputElement
+        aria-label={"search for a country"}
         themestate={theme}
         placeholder={"Search for a country..."}
-        {...getInputProps()}
+        {...getInputProps({
+          onKeyDown: (event) => {
+            if (event.key === "Tab" && isOpen) {
+              event.stopPropagation();
+            }
+          },
+        })}
       />
       <SearchIconContainer>
         <Image
@@ -255,6 +350,8 @@ function Input() {
         {isOpen && items.length ? (
           <SearchResultsContainer
             // key={items.length}
+            aria-live={"polite"}
+            aria-label={"search results"}
             themestate={theme}
             filtereditems={filteredItems}
             style={{ overflow: "hidden" }}
@@ -295,13 +392,18 @@ function Input() {
                 }
 
                 return (
-                  <FilterEntryWrapper
+                  <FilterEntryComponent
                     themestate={theme}
                     key={`${item.name}-${index}`}
+                    item={item}
+                    index={index}
                     highlighted={highlightedIndex === index}
                     selected={selectedItem === index}
-                    {...getItemProps({ item, index })}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    onKeyDown={handleKeyDown}
                     style={style}
+                    getItemProps={getItemProps}
                   >
                     <Image
                       flag={true}
@@ -336,7 +438,7 @@ function Input() {
                         {item?.region}
                       </FilterEntryDetailsValue>
                     </FilterEntryDetailsRow>
-                  </FilterEntryWrapper>
+                  </FilterEntryComponent>
                 );
               }}
             </List>

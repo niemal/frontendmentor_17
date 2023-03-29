@@ -7,6 +7,7 @@ import { NotFound } from "../Country";
 import { QUERIES } from "../constants";
 import { FixedSizeList as List } from "react-window";
 import { isMobile } from "react-device-detect";
+import ClickableWrapper from "../ClickableWrapper";
 
 const Wrapper = styled.div`
   padding-top: 16px;
@@ -56,6 +57,11 @@ const CardWrapper = styled(motion.a)`
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
     0 1px 2px rgba(0, 0, 0, 0.04);
+
+  &:focus {
+    outline: 3px solid var(--color-text-${(p) => p["data-themestate"]});
+    outline-offset: 2px;
+  }
 
   &:hover {
     transform: translateY(6px) !important;
@@ -166,7 +172,13 @@ function Row({ index, data, style }) {
   const encodedURI = encodeURI(`/frontendmentor_17/country/${item.name}`);
 
   return (
-    <Link key={`${item.name}${index}`} href={encodedURI}>
+    <ClickableWrapper
+      key={`${item.name}${index}`}
+      href={encodedURI}
+      onClick={() => {
+        window.location = encodedURI;
+      }}
+    >
       <CardWrapper
         key={`${item.name}${index}`}
         layoutId={`card-${item.name}`}
@@ -203,7 +215,7 @@ function Row({ index, data, style }) {
           </TextRow>
         </TextWrapper>
       </CardWrapper>
-    </Link>
+    </ClickableWrapper>
   );
 }
 

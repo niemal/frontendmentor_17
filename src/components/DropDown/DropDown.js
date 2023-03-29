@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState, useRef, forwardRef } from "react";
 import styled, { css } from "styled-components";
-import { useSelect } from "downshift";
 import { MainContext } from "../MainBody";
 import { motion, AnimatePresence } from "framer-motion";
 import { hoverSupported } from "../hoverSupported";
+import ClickableWrapper from "../ClickableWrapper";
 
 const Wrapper = styled.div`
   position: relative;
@@ -25,6 +25,16 @@ const DropDownWrapper = styled.div`
   position: relative;
   user-select: none;
   z-index: 89;
+
+  &:focus {
+    ${(p) =>
+      p.isKeyboardFocused
+        ? `
+    outline: 3px solid var(--color-text-${p.themestate});
+    outline-offset: -6px;
+    `
+        : ""}
+  }
 
   ${hoverSupported(css`
     &:hover {
@@ -91,6 +101,16 @@ const DropDownEntry = styled(motion.span)`
 
   border-radius: 8px 0px 0px 8px;
 
+  &:focus {
+    ${(p) =>
+      p.isKeyboardFocused
+        ? `
+    outline: 2px solid var(--color-text-${(p) => p.themestate});
+    outline-offset: 2px;
+    `
+        : ""}
+  }
+
   ${hoverSupported(css`
     &:hover {
       color: var(--color-background-${(p) => p.themestate});
@@ -118,19 +138,9 @@ const selections = ["Africa", "America", "Asia", "Europe", "Oceania"];
 function DropDown() {
   const { theme, items, setItems, region, setRegion } = useContext(MainContext);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const wrapperRef = useRef(null);
-
-  const {
-    reset,
-    selectedItem,
-    getToggleButtonProps,
-    getMenuProps,
-    getItemProps,
-  } = useSelect({
-    items: selections,
-  });
-
-  const menuProps = getMenuProps({ refKey: "ref" }, { suppressRefError: true });
+  const itemsRefs = useRef([]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -145,95 +155,89 @@ function DropDown() {
     };
   }, [wrapperRef]);
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      setMenuIsOpen(!menuIsOpen);
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setSelectedIndex((prevIndex) =>
+        Math.min(prevIndex + 1, selections.length - 1)
+      );
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+    }
+  };
+
+  const handleSelectionClick = (item) => {
+    setRegion(item);
+    setMenuIsOpen(false);
+  };
+
   useEffect(() => {
-    setRegion(selectedItem);
-  }, [selectedItem]);
+    if (selectedIndex !== -1 && menuIsOpen) {
+      itemsRefs.current[selectedIndex].focus();
+    }
+  }, [selectedIndex, menuIsOpen]);
 
   return (
     <Wrapper ref={wrapperRef}>
-      <DropDownWrapper
+      <ClickableWrapper
         themestate={theme}
-        {...getToggleButtonProps()}
         onClick={() => setMenuIsOpen(!menuIsOpen)}
+        onKeyDown={handleKeyDown}
       >
-        <DropDownSelectedText themestate={theme}>
-          {selectedItem ?? "Filter By Region"}
-        </DropDownSelectedText>
-        <DropDownIconContainer isOpen={menuIsOpen}>
-          <Image
-            src={`/frontendmentor_17/dropdown-${theme}-icon.svg`}
-            alt={`${theme === 0 ? "light" : "dark"} theme dropdown image icon`}
-          />
-        </DropDownIconContainer>
-        <AnimatePresence
-          onExitComplete={() => {
-            setMenuIsOpen(false);
-          }}
-        >
-          {menuIsOpen && (
-            <DropDownContainer
-              initial={{ opacity: 0, maxHeight: 0, scale: 0.8 }}
-              animate={{ opacity: 1, maxHeight: "260px", scale: 1 }}
-              exit={{ opacity: 0, maxHeight: 0, scale: 0.8 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              themestate={theme}
-              {...menuProps}
-              // {...getMenuProps({ refKey: "ref" }, { suppressRefError: true })}
-            >
-              {selections.map((item, index) => {
-                const { onClick, ...props } = getItemProps({ item, index });
-
-                return (
-                  <DropDownEntry
-                    key={`selection-entry-${index}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{
-                      duration: 0.3,
-                      ease: "easeInOut",
-                      delay: 0.15,
-                    }}
-                    data-ishighlighted={(region === item).toString()}
-                    themestate={theme}
-                    onClick={(e) => {
-                      onClick(e);
-
-                      if (region && region === item) {
-                        setRegion(null);
-                        reset();
-                      }
-                    }}
-                    {...props}
-                  >
-                    {item}
-                  </DropDownEntry>
-                );
-              })}
-            </DropDownContainer>
-          )}
-        </AnimatePresence>
-      </DropDownWrapper>
-
-      {/* <AnimatePresence>
-        {selectedItem && (
-          <DropDownClear
-            key={"clear-button"}
-            themestate={theme}
-            initial={{ opacity: 0, maxHeight: "260px", scale: 0 }}
-            animate={{ opacity: 1, maxHeight: "260px", scale: 1 }}
-            exit={{ opacity: 0, maxHeight: "0px", scale: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            onClick={(e) => {
-              e.preventDefault();
-              reset();
+        <DropDownWrapper>
+          <DropDownSelectedText themestate={theme}>
+            {region ?? "Filter By Region"}
+          </DropDownSelectedText>
+          <DropDownIconContainer isOpen={menuIsOpen}>
+            <Image
+              src={`/frontendmentor_17/dropdown-${theme}-icon.svg`}
+              alt={`${
+                theme === 0 ? "light" : "dark"
+              } theme dropdown image icon`}
+            />
+          </DropDownIconContainer>
+          <AnimatePresence
+            onExitComplete={() => {
               setMenuIsOpen(false);
-              setRegion(null);
             }}
           >
-            CLEAR
-          </DropDownClear>
-        )}
-      </AnimatePresence> */}
+            {menuIsOpen && (
+              <DropDownContainer
+                initial={{ opacity: 0, maxHeight: 0, scale: 0.8 }}
+                animate={{ opacity: 1, maxHeight: "260px", scale: 1 }}
+                exit={{ opacity: 0, maxHeight: 0, scale: 0.8 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                themestate={theme}
+              >
+                {selections.map((item, index) => (
+                  <ClickableWrapper onClick={() => handleSelectionClick(item)}>
+                    <DropDownEntry
+                      key={`selection-entry-${index}`}
+                      ref={(el) => (itemsRefs.current[index] = el)}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeInOut",
+                        delay: 0.15,
+                      }}
+                      data-ishighlighted={(selectedIndex === index).toString()}
+                      themestate={theme}
+                      tabIndex={-1}
+                    >
+                      {item}
+                    </DropDownEntry>
+                  </ClickableWrapper>
+                ))}
+              </DropDownContainer>
+            )}
+          </AnimatePresence>
+        </DropDownWrapper>
+      </ClickableWrapper>
     </Wrapper>
   );
 }
