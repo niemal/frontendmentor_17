@@ -27,13 +27,8 @@ const DropDownWrapper = styled.div`
   z-index: 89;
 
   &:focus {
-    ${(p) =>
-      p.isKeyboardFocused
-        ? `
-    outline: 3px solid var(--color-text-${p.themestate});
+    outline: 3px solid var(--color-text-${(p) => p.themestate});
     outline-offset: -6px;
-    `
-        : ""}
   }
 
   ${hoverSupported(css`
@@ -89,7 +84,8 @@ const DropDownEntry = styled(motion.span)`
   padding: 8px 24px;
   transition: all 0.3s ease-in-out;
 
-  color: ${({ "data-ishighlighted": isHighlighted, themestate }) =>
+  ${
+    "" /* color: ${({ "data-ishighlighted": isHighlighted, themestate }) =>
     isHighlighted === "true"
       ? `var(--color-background-${themestate})`
       : `var(--color-text-${themestate})`};
@@ -97,18 +93,24 @@ const DropDownEntry = styled(motion.span)`
   background-color: ${({ "data-ishighlighted": isHighlighted, themestate }) =>
     isHighlighted === "true"
       ? `var(--color-input-${themestate})`
+      : "transparent"}; */
+  }
+
+  color: ${(p) =>
+    p.ishighlighted === "true"
+      ? `var(--color-background-${p.themestate})`
+      : `var(--color-text-${p.themestate})`};
+
+  background-color: ${({ ishighlighted, themestate }) =>
+    ishighlighted === "true"
+      ? `var(--color-input-${themestate})`
       : "transparent"};
 
   border-radius: 8px 0px 0px 8px;
 
   &:focus {
-    ${(p) =>
-      p.isKeyboardFocused
-        ? `
     outline: 2px solid var(--color-text-${(p) => p.themestate});
     outline-offset: 2px;
-    `
-        : ""}
   }
 
   ${hoverSupported(css`
@@ -171,7 +173,12 @@ function DropDown() {
   };
 
   const handleSelectionClick = (item) => {
-    setRegion(item);
+    if (region === item) {
+      setRegion(null);
+    } else {
+      setRegion(item);
+    }
+
     setMenuIsOpen(false);
   };
 
@@ -214,9 +221,11 @@ function DropDown() {
                 themestate={theme}
               >
                 {selections.map((item, index) => (
-                  <ClickableWrapper onClick={() => handleSelectionClick(item)}>
+                  <ClickableWrapper
+                    key={`selection-entry-${index}`}
+                    onClick={() => handleSelectionClick(item)}
+                  >
                     <DropDownEntry
-                      key={`selection-entry-${index}`}
                       ref={(el) => (itemsRefs.current[index] = el)}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -225,7 +234,8 @@ function DropDown() {
                         ease: "easeInOut",
                         delay: 0.15,
                       }}
-                      data-ishighlighted={(selectedIndex === index).toString()}
+                      // data-ishighlighted={(selectedIndex === index).toString()}
+                      ishighlighted={(selectedIndex === index).toString()}
                       themestate={theme}
                       tabIndex={-1}
                     >

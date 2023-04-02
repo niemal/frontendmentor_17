@@ -22,12 +22,10 @@ const Wrapper = styled(motion.div)`
   padding-left: 24px;
   padding-right: 24px;
 
-  ${
-    "" /* @media ${QUERIES.tabletAndSmaller} {
-    padding-left: 24px;
-    padding-right: 24px;
-  } */
+  @media ${QUERIES.tabletAndSmaller} {
+    padding-bottom: 32px;
   }
+
   @media ${QUERIES.phoneAndSmaller} {
     padding-top: 40px;
     padding-bottom: 40px;
