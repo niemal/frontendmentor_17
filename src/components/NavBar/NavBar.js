@@ -14,8 +14,11 @@ const Wrapper = styled.div`
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.06);
 
-  @media ${QUERIES.tabletAndSmaller} {
+  padding: 0px 24px;
+  ${
+    "" /* @media ${QUERIES.tabletAndSmaller} {
     padding: 0px 24px;
+  } */
   }
 `;
 

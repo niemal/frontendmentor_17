@@ -19,9 +19,14 @@ const Wrapper = styled(motion.div)`
   display: flex;
   flex-direction: column;
 
-  @media ${QUERIES.tabletAndSmaller} {
+  padding-left: 24px;
+  padding-right: 24px;
+
+  ${
+    "" /* @media ${QUERIES.tabletAndSmaller} {
     padding-left: 24px;
     padding-right: 24px;
+  } */
   }
   @media ${QUERIES.phoneAndSmaller} {
     padding-top: 40px;
@@ -138,6 +143,10 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media ${QUERIES.exclusiveWidth1} {
+    gap: 32px;
+  }
 
   @media ${QUERIES.tabletAndSmaller} {
     flex-direction: column;
