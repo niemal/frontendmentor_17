@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, forwardRef, useRef } from "react";
 import styled from "styled-components";
 import { Link } from "wouter";
 import { MainContext } from "../MainBody";
@@ -86,6 +86,7 @@ export const NoMatchesFound = styled.div`
 
 const FlagContainer = styled.div`
   max-width: 100%;
+  background-color: var(--color-elements-${(p) => p.themestate});
 `;
 
 const Image = styled.img`
@@ -191,7 +192,7 @@ function Row({ index, data, style }) {
         transition={fadeInOut.transition}
         style={style}
       >
-        <FlagContainer>
+        <FlagContainer themestate={theme}>
           <Image
             src={item.flags.png}
             alt={`${item ? item?.name : ""} search result flag image`}
@@ -219,7 +220,18 @@ function Row({ index, data, style }) {
   );
 }
 
-function CardsRender() {
+const OuterElement = forwardRef((props, reactWindowRef) => {
+  const localRef = useRef();
+
+  const refSetter = (ref) => {
+    reactWindowRef(ref);
+    localRef.current = ref;
+  };
+
+  return <MobileWrapper ref={refSetter} {...props} />;
+});
+
+const CardsRender = ({ scroller, ...props }) => {
   const { items, theme } = useContext(MainContext);
 
   if (items.length === 0) {
@@ -232,24 +244,28 @@ function CardsRender() {
 
   if (isMobile) {
     return (
-      <MobileWrapper>
-        <AnimatePresence mode={"wait"}>
-          <List
-            height={window.innerHeight}
-            itemCount={items.length}
-            itemSize={400}
-            width={"100%"}
-            itemData={{ items, theme }}
-          >
-            {Row}
-          </List>
-        </AnimatePresence>
-      </MobileWrapper>
+      <AnimatePresence mode={"wait"}>
+        <List
+          ref={scroller.ref}
+          outerRef={scroller.outerRef}
+          outerElementType={OuterElement}
+          height={window.innerHeight}
+          itemCount={items.length}
+          itemSize={400}
+          width={"100%"}
+          itemData={{ items, theme }}
+          style={scroller.style}
+          onScroll={scroller.onScroll}
+          {...props}
+        >
+          {Row}
+        </List>
+      </AnimatePresence>
     );
   }
 
   return (
-    <Wrapper>
+    <Wrapper {...props}>
       <AnimatePresence mode={"wait"}>
         {items.map((item, index) => (
           <Link
@@ -268,7 +284,7 @@ function CardsRender() {
               exit={fadeInOut.exit}
               transition={fadeInOut.transition}
             >
-              <FlagContainer>
+              <FlagContainer themestate={theme}>
                 <Image
                   src={item.flags.png}
                   alt={`${item ? item?.name : ""} search result flag image`}
@@ -302,6 +318,6 @@ function CardsRender() {
       </AnimatePresence>
     </Wrapper>
   );
-}
+};
 
 export default CardsRender;

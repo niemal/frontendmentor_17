@@ -14,7 +14,9 @@
     "react-dom": "^18.2.0",
     "react-intersection-observer": "^9.4.3",
     "react-scripts": "5.0.1",
+    "react-virtualized-auto-sizer": "^1.0.12",
     "react-window": "^1.8.8",
+    "react-window-scroller": "^1.0.10",
     "styled-components": "^5.3.9",
     "web-vitals": "^2.1.4",
     "wouter": "^2.10.0"

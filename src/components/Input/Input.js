@@ -59,6 +59,18 @@ const Image = styled.img`
   border-radius: 8px;
   `
       : ""}
+
+  @media ${QUERIES.phoneAndSmaller} {
+    ${(p) =>
+      p.flag
+        ? `
+        object-fit: contain;
+        width: 80px;
+        height: 50px;
+        border-radius: 8px;
+      `
+        : ""}
+  }
 `;
 
 const SearchIconContainer = styled.div`
@@ -193,6 +205,15 @@ const FilterEntryDetailsWrapper = styled.div`
 const FilterEntryDetailsRow = styled.div`
   display: flex;
   gap: 8px;
+
+  @media ${QUERIES.phoneAndSmaller} {
+    ${(p) =>
+      p.region
+        ? `
+      display: none;
+    `
+        : ""}
+  }
 `;
 
 const FilterEntryDetailsIntro = styled.span`
@@ -233,7 +254,7 @@ function getCountriesFilter(inputValue) {
 }
 
 const MotionDiv = forwardRef((props, ref) => {
-  const { style, ...rest } = props;
+  const { style, menuProps, ...rest } = props;
   return (
     <SearchResultsContainer
       ref={ref}
@@ -242,6 +263,7 @@ const MotionDiv = forwardRef((props, ref) => {
       initial={{ opacity: 0, scale: 0.5 }}
       exit={{ opacity: 0, scale: 0 }}
       transition={{ duration: 0.3 }}
+      {...menuProps}
       {...rest}
     />
   );
@@ -368,7 +390,7 @@ function Input() {
               // key={items.length}
               height={filteredItems.length === 1 ? 144 : 286}
               itemCount={filteredItems.length}
-              itemSize={isMobile ? 222 : 144}
+              itemSize={isMobile ? 160 : 144}
               outerElementType={MotionDiv}
               innerElementType="div"
               itemData={filteredItems}
@@ -382,7 +404,6 @@ function Input() {
                   : { opacity: 0, scale: 0 }
               }
               transition={{ duration: 0.3 }}
-              {...getMenuProps()}
             >
               {({ index, style }) => {
                 const item = items[index];
@@ -430,7 +451,7 @@ function Input() {
                       </FilterEntryDetailsRow>
                     </FilterEntryDetailsWrapper>
 
-                    <FilterEntryDetailsRow>
+                    <FilterEntryDetailsRow region={true}>
                       <FilterEntryDetailsIntro
                         themestate={theme}
                       >{`Region:`}</FilterEntryDetailsIntro>

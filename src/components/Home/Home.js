@@ -2,7 +2,9 @@ import styled from "styled-components";
 import Input from "../Input";
 import DropDown from "../DropDown";
 import CardsRender from "../CardsRender";
+import { useRef, useCallback, forwardRef, useState, useEffect } from "react";
 import { QUERIES } from "../constants";
+import { ReactWindowScroller } from "react-window-scroller";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -13,12 +15,6 @@ const Wrapper = styled.div`
 
   padding-left: 24px;
   padding-right: 24px;
-  ${
-    "" /* @media ${QUERIES.tabletAndSmaller} {
-    padding-left: 24px;
-    padding-right: 24px;
-  } */
-  }
 `;
 
 const TopContainer = styled.div`
@@ -39,13 +35,24 @@ const TopContainer = styled.div`
 
 function Home() {
   return (
-    <Wrapper>
-      <TopContainer>
-        <Input />
-        <DropDown />
-      </TopContainer>
-      <CardsRender />
-    </Wrapper>
+    <ReactWindowScroller>
+      {({ ref, outerRef, style, onScroll }) => (
+        <Wrapper>
+          <TopContainer>
+            <Input />
+            <DropDown />
+          </TopContainer>
+          <CardsRender
+            scroller={{
+              ref,
+              outerRef,
+              style,
+              onScroll,
+            }}
+          />
+        </Wrapper>
+      )}
+    </ReactWindowScroller>
   );
 }
 
