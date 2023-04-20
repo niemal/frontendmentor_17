@@ -1,6 +1,5 @@
 import { useContext, forwardRef, useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Link } from "wouter";
 import { MainContext } from "../MainBody";
 import { motion, AnimatePresence } from "framer-motion";
 import { NotFound } from "../Country";
@@ -20,29 +19,15 @@ const Wrapper = styled(motion.div)`
   max-height: max-content !important;
   margin: 0 auto;
   position: relative;
-  & > div {
-  }
 
   &,
   & > div {
-    ${
-      "" /* display: grid;
-    grid-template-columns: repeat(auto-fit, 260px);
-    justify-content: space-between;
-    grid-gap: 32px; */
-    }
-
     display: flex;
     justify-content: space-between;
     ${"" /* gap: 32px; */}
 
     @media ${QUERIES.tabletAndSmaller} {
       justify-content: center;
-    }
-
-    @media ${QUERIES.phoneAndSmaller} {
-      display: none;
-      max-height: 100% !important;
     }
   }
 `;
@@ -63,7 +48,6 @@ const CardWrapper = styled(motion.a)`
   transition: all 0.3s ease-in-out;
   margin-bottom: 40px;
 
-  /* & > div { */
   display: flex;
   flex-direction: column;
   border-radius: 8px;
@@ -72,7 +56,6 @@ const CardWrapper = styled(motion.a)`
   width: 260px;
   transition: all 0.3s ease-in-out;
   opacity: 1;
-  /* } */
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
     0 1px 2px rgba(0, 0, 0, 0.04);
@@ -90,6 +73,7 @@ const CardWrapper = styled(motion.a)`
 
   @media ${QUERIES.phoneAndSmaller} {
     max-height: 300px;
+    position: absolute !important;
   }
 `;
 
@@ -306,50 +290,56 @@ function Row({
     );
   }
   return (
-    <ClickableWrapper
-      key={`${item.name}${index}`}
-      href={encodedURI}
-      onClick={() => {
-        window.location = encodedURI;
-      }}
+    <MobileWrapper
+      style={style}
+      themestate={theme}
+      initial={fadeInOut.initial}
+      animate={fadeInOut.animate}
+      variants={fadeIn}
+      exit={fadeInOut.exit}
+      transition={fadeInOut.transition}
     >
-      <CardWrapper
+      <ClickableWrapper
         key={`${item.name}${index}`}
-        layoutId={`card-${item.name}`}
-        as={CardWrapper}
-        themestate={theme}
-        initial={fadeInOut.initial}
-        animate={fadeInOut.animate}
-        variants={fadeIn}
-        exit={fadeInOut.exit}
-        transition={fadeInOut.transition}
-        style={style}
+        href={encodedURI}
+        onClick={() => {
+          window.location = encodedURI;
+        }}
       >
-        <FlagContainer themestate={theme}>
-          <Image
-            src={item.flags.png}
-            alt={`${item ? item?.name : ""} search result flag image`}
-          />
-        </FlagContainer>
-        <TextWrapper themestate={theme}>
-          <CountryName themestate={theme}>{item.name}</CountryName>
-          <TextRow first={true}>
-            <TextRowIntro themestate={theme}>{`Population:`}</TextRowIntro>
-            <TextRowValue themestate={theme}>
-              {item.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </TextRowValue>
-          </TextRow>
-          <TextRow>
-            <TextRowIntro themestate={theme}>{`Region:`}</TextRowIntro>
-            <TextRowValue themestate={theme}>{item.region}</TextRowValue>
-          </TextRow>
-          <TextRow>
-            <TextRowIntro themestate={theme}>{`Capital:`}</TextRowIntro>
-            <TextRowValue themestate={theme}>{item.capital}</TextRowValue>
-          </TextRow>
-        </TextWrapper>
-      </CardWrapper>
-    </ClickableWrapper>
+        <CardWrapper
+          key={`${item.name}${index}`}
+          layoutId={`card-${item.name}`}
+          as={CardWrapper}
+          themestate={theme}
+        >
+          <FlagContainer themestate={theme}>
+            <Image
+              src={item.flags.png}
+              alt={`${item ? item?.name : ""} search result flag image`}
+            />
+          </FlagContainer>
+          <TextWrapper themestate={theme}>
+            <CountryName themestate={theme}>{item.name}</CountryName>
+            <TextRow first={true}>
+              <TextRowIntro themestate={theme}>{`Population:`}</TextRowIntro>
+              <TextRowValue themestate={theme}>
+                {item.population
+                  .toString()
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              </TextRowValue>
+            </TextRow>
+            <TextRow>
+              <TextRowIntro themestate={theme}>{`Region:`}</TextRowIntro>
+              <TextRowValue themestate={theme}>{item.region}</TextRowValue>
+            </TextRow>
+            <TextRow>
+              <TextRowIntro themestate={theme}>{`Capital:`}</TextRowIntro>
+              <TextRowValue themestate={theme}>{item.capital}</TextRowValue>
+            </TextRow>
+          </TextWrapper>
+        </CardWrapper>
+      </ClickableWrapper>
+    </MobileWrapper>
   );
 }
 
@@ -421,8 +411,6 @@ const CardsRender = ({ scroller, ...props }) => {
     );
   }
 
-  const marker = tripleEntryRow ? 3 : 4;
-
   return (
     <AnimatePresence mode={"wait"}>
       <List
@@ -439,79 +427,11 @@ const CardsRender = ({ scroller, ...props }) => {
         {...props}
       >
         {({ index, ...props }) => {
-          if (index === items.length - 1) {
-            const { style, ...rest } = props;
-
-            return (
-              <Row
-                index={index}
-                setRowHeight={setRowHeight}
-                style={{ ...style, marginTop: "-220px", paddingTop: "220px" }}
-                {...rest}
-              />
-            );
-          }
-
           return <Row index={index} setRowHeight={setRowHeight} {...props} />;
         }}
       </List>
     </AnimatePresence>
   );
-
-  // return (
-  //   <Wrapper {...props}>
-  //     <AnimatePresence mode={"wait"}>
-  //       {items.map((item, index) => (
-  //         <Link
-  //           key={`${item.name}${index}`}
-  //           href={encodeURI(`/frontendmentor_17/country/${item.name}`)}
-  //         >
-  //           {/* <CardWrapper themestate={theme}> */}
-  //           <CardWrapper
-  //             key={`${item.name}${index}`}
-  //             layoutId={`card-${item.name}`}
-  //             as={CardWrapper}
-  //             initial={fadeInOut.initial}
-  //             animate={fadeInOut.animate}
-  //             data-themestate={theme}
-  //             variants={fadeIn}
-  //             exit={fadeInOut.exit}
-  //             transition={fadeInOut.transition}
-  //           >
-  //             <FlagContainer themestate={theme}>
-  //               <Image
-  //                 src={item.flags.png}
-  //                 alt={`${item ? item?.name : ""} search result flag image`}
-  //               />
-  //             </FlagContainer>
-  //             <TextWrapper themestate={theme}>
-  //               <CountryName themestate={theme}>{item.name}</CountryName>
-  //               <TextRow first={true}>
-  //                 <TextRowIntro
-  //                   themestate={theme}
-  //                 >{`Population:`}</TextRowIntro>
-  //                 <TextRowValue themestate={theme}>
-  //                   {item.population
-  //                     .toString()
-  //                     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-  //                 </TextRowValue>
-  //               </TextRow>
-  //               <TextRow>
-  //                 <TextRowIntro themestate={theme}>{`Region:`}</TextRowIntro>
-  //                 <TextRowValue themestate={theme}>{item.region}</TextRowValue>
-  //               </TextRow>
-  //               <TextRow>
-  //                 <TextRowIntro themestate={theme}>{`Capital:`}</TextRowIntro>
-  //                 <TextRowValue themestate={theme}>{item.capital}</TextRowValue>
-  //               </TextRow>
-  //             </TextWrapper>
-  //           </CardWrapper>
-  //           {/* </CardWrapper> */}
-  //         </Link>
-  //       ))}
-  //     </AnimatePresence>
-  //   </Wrapper>
-  // );
 };
 
 export default CardsRender;
