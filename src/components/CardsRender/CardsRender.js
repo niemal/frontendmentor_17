@@ -1,4 +1,11 @@
-import { useContext, forwardRef, useRef, useCallback, useEffect } from "react";
+import {
+  useContext,
+  forwardRef,
+  useRef,
+  useCallback,
+  useEffect,
+  createContext,
+} from "react";
 import styled from "styled-components";
 import { MainContext } from "../MainBody";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +16,8 @@ import { FixedSizeList as FixedList } from "react-window";
 import { isMobile } from "react-device-detect";
 import { useMediaQuery } from "react-responsive";
 import ClickableWrapper from "../ClickableWrapper";
+import UpArrow from "../UpArrow";
+import { useState } from "react";
 
 const Wrapper = styled(motion.div)`
   height: max-content !important;
@@ -179,6 +188,7 @@ function Row({
   setRowHeight,
   ...props
 }) {
+  const { showArrow, setShowArrow } = useContext(CardsContext);
   const { items, theme } = data;
   const rowRef = useRef(null);
   const rowItems = [];
@@ -190,6 +200,15 @@ function Row({
   useEffect(() => {
     if (rowRef.current && !isMobile) {
       setRowHeight(index, rowRef.current.clientHeight);
+    }
+
+    if (index > 10) {
+      setShowArrow(true);
+    } else if (index === 0) {
+      const id = setTimeout(() => {
+        setShowArrow(false);
+      }, 200);
+      return () => clearTimeout(id);
     }
   }, [rowRef]);
 
@@ -365,9 +384,12 @@ const OuterElementWrapper = forwardRef((props, reactWindowRef) => {
   return <Wrapper ref={refSetter} {...props} />;
 });
 
+const CardsContext = createContext();
+
 const CardsRender = ({ scroller, ...props }) => {
   const rowHeights = useRef({});
   const { items, theme } = useContext(MainContext);
+  const [showArrow, setShowArrow] = useState(false);
   const tripleEntryRow = useMediaQuery({
     query: `(min-width: 500px) and (max-width: 1200px)`,
   });
@@ -391,45 +413,69 @@ const CardsRender = ({ scroller, ...props }) => {
 
   if (isMobile) {
     return (
-      <AnimatePresence mode={"wait"}>
-        <FixedList
-          ref={scroller.ref}
-          outerRef={scroller.outerRef}
-          outerElementType={OuterElement}
-          height={window.innerHeight}
-          itemCount={items.length}
-          itemSize={400}
-          width={"100%"}
-          itemData={{ items, theme }}
-          style={scroller.style}
-          onScroll={scroller.onScroll}
-          {...props}
-        >
-          {Row}
-        </FixedList>
-      </AnimatePresence>
+      <CardsContext.Provider value={{ showArrow, setShowArrow }}>
+        <AnimatePresence mode={"wait"}>
+          {showArrow ? (
+            <UpArrow
+              theme={theme}
+              onClick={() => {
+                scroller.ref?.current?.scrollTo(0);
+              }}
+            />
+          ) : (
+            ""
+          )}
+          <FixedList
+            ref={scroller.ref}
+            outerRef={scroller.outerRef}
+            outerElementType={OuterElement}
+            height={window.innerHeight}
+            itemCount={items.length}
+            itemSize={400}
+            width={"100%"}
+            itemData={{ items, theme }}
+            style={scroller.style}
+            onScroll={scroller.onScroll}
+            {...props}
+          >
+            {Row}
+          </FixedList>
+        </AnimatePresence>
+      </CardsContext.Provider>
     );
   }
 
   return (
     <AnimatePresence mode={"wait"}>
-      <List
-        ref={scroller.ref}
-        outerRef={scroller.outerRef}
-        outerElementType={OuterElementWrapper}
-        height={window.innerHeight}
-        itemCount={items.length}
-        itemSize={(index) => getRowHeight(index)}
-        width={tripleEntryRow ? window.innerWidth - 8 : 1280}
-        itemData={{ items, theme }}
-        style={scroller.style}
-        onScroll={scroller.onScroll}
-        {...props}
-      >
-        {({ index, ...props }) => {
-          return <Row index={index} setRowHeight={setRowHeight} {...props} />;
-        }}
-      </List>
+      <CardsContext.Provider value={{ showArrow, setShowArrow }}>
+        {showArrow ? (
+          <UpArrow
+            theme={theme}
+            onClick={() => {
+              scroller.ref?.current?.scrollTo(0);
+            }}
+          />
+        ) : (
+          ""
+        )}
+        <List
+          ref={scroller.ref}
+          outerRef={scroller.outerRef}
+          outerElementType={OuterElementWrapper}
+          height={window.innerHeight}
+          itemCount={items.length}
+          itemSize={(index) => getRowHeight(index)}
+          width={tripleEntryRow ? window.innerWidth - 8 : 1280}
+          itemData={{ items, theme }}
+          style={scroller.style}
+          onScroll={scroller.onScroll}
+          {...props}
+        >
+          {({ index, ...props }) => {
+            return <Row index={index} setRowHeight={setRowHeight} {...props} />;
+          }}
+        </List>
+      </CardsContext.Provider>
     </AnimatePresence>
   );
 };
