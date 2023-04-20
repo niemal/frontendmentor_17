@@ -5,6 +5,7 @@ import CardsRender from "../CardsRender";
 import { useRef, useCallback, forwardRef, useState, useEffect } from "react";
 import { QUERIES } from "../constants";
 import { ReactWindowScroller } from "react-window-scroller";
+import { isMobile } from "react-device-detect";
 
 const Wrapper = styled.div`
   width: 100%;
