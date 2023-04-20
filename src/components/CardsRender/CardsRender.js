@@ -205,10 +205,7 @@ function Row({
     if (index > 10) {
       setShowArrow(true);
     } else if (index === 0) {
-      const id = setTimeout(() => {
-        setShowArrow(false);
-      }, 200);
-      return () => clearTimeout(id);
+      setShowArrow(false);
     }
   }, [rowRef]);
 
