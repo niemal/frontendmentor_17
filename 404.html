@@ -5,6 +5,7 @@
     <title>Redirecting</title>
     <script>
       sessionStorage.redirect = location.href;
+      sessionStorage.contextData = JSON.stringify(window.contextData);
     </script>
     <meta http-equiv="refresh" content="0;URL='/frontendmentor_17'" />
   </head>
