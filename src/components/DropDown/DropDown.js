@@ -125,20 +125,33 @@ const DropDownClear = styled(DropDownEntry)`
   width: max-content;
   padding: 8px 12px;
   text-align: center;
-  box-shadow: 0px 1px 6px var(--color-text-${(p) => p.themestate});
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04);
   background-color: var(--color-elements-${(p) => p.themestate});
   color: var(--color-text-${(p) => p.themestate});
   position: absolute;
-  top: 68px;
-  left: 24px;
+  top: 8px;
+  left: -72px;
   font-weight: var(--font-weight-semibold);
   border-radius: 8px;
+
+  &:focus {
+    outline: 2px solid var(--color-text-${(p) => p.themestate});
+    outline-offset: 2px;
+  }
+
+  ${hoverSupported(css`
+    &:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+  `)}
 `;
 
 const selections = ["Africa", "America", "Asia", "Europe", "Oceania"];
 
 function DropDown() {
-  const { theme, items, setItems, region, setRegion } = useContext(MainContext);
+  const { theme, region, setRegion } = useContext(MainContext);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const wrapperRef = useRef(null);
@@ -190,6 +203,28 @@ function DropDown() {
 
   return (
     <Wrapper ref={wrapperRef}>
+      <AnimatePresence>
+        {region ? (
+          <ClickableWrapper
+            onClick={() => {
+              setRegion(null);
+              setSelectedIndex(-1);
+            }}
+            themestate={theme}
+          >
+            <DropDownClear
+              initial={{ x: 72, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 72, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              Clear
+            </DropDownClear>
+          </ClickableWrapper>
+        ) : (
+          ""
+        )}
+      </AnimatePresence>
       <ClickableWrapper
         themestate={theme}
         onClick={() => setMenuIsOpen(!menuIsOpen)}
