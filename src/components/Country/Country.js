@@ -369,13 +369,10 @@ function Country({ country }) {
               <BordersRow>
                 <RowIntro themestate={theme}>{`Border countries:`}</RowIntro>
                 {item.border_names.map((name) => (
-                  <Link
-                    key={`border-${name}`}
-                    href={`/frontendmentor_17/country/${name}`}
-                  >
+                  <Link key={`border-${name}`} href={`/country/${name}`}>
                     <ClickableWrapper
                       onClick={() => {
-                        window.location = `/frontendmentor_17/country/${name}`;
+                        window.location = `/country/${name}`;
                       }}
                     >
                       <BorderLink themestate={theme}>{name}</BorderLink>

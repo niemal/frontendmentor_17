@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, createContext } from "react";
+import { useState, createContext, useEffect } from "react";
 import NavBar from "../NavBar";
 import { Switch, Route, Router } from "wouter";
 import Home from "../Home";
@@ -19,9 +19,22 @@ const Wrapper = styled.main`
 export const MainContext = createContext();
 
 function MainBody() {
-  const [theme, setTheme] = useState(0);
-  const [items, setItems] = useState(baseData);
-  const [region, setRegion] = useState(null);
+  const [theme, setTheme] = useState(() => window.contextData?.theme || 0);
+  const [items, setItems] = useState(
+    () => window.contextData?.items || baseData
+  );
+  const [region, setRegion] = useState(
+    () => window.contextData?.region || null
+  );
+
+  useEffect(() => {
+    if (window.contextData) {
+      setTheme(window.contextData.theme);
+      setItems(window.contextData.items);
+      setRegion(window.contextData.region);
+      delete window.contextData;
+    }
+  }, []);
 
   return (
     <Wrapper role={"main"} themeState={theme}>
