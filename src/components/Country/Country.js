@@ -337,20 +337,24 @@ function Country({ country }) {
                   </RowValue>
                 ))}
               </Row>
-              <Row>
-                <RowIntro themestate={theme}>{`Currencies:`}</RowIntro>
-                {item.currencies.map((currency, idx) => (
-                  <RowValue
-                    key={`${item.name}-currency-${currency.name}`}
-                    themestate={theme}
-                  >
-                    {currency.name}
-                    {` `}
-                    {currency.symbol}
-                    {idx < item.currencies.length - 1 ? "," : ""}
-                  </RowValue>
-                ))}
-              </Row>
+              {item.currencies ? (
+                <Row>
+                  <RowIntro themestate={theme}>{`Currencies:`}</RowIntro>
+                  {item.currencies.map((currency, idx) => (
+                    <RowValue
+                      key={`${item.name}-currency-${currency.name}`}
+                      themestate={theme}
+                    >
+                      {currency.name}
+                      {` `}
+                      {currency.symbol}
+                      {idx < item.currencies.length - 1 ? "," : ""}
+                    </RowValue>
+                  ))}
+                </Row>
+              ) : (
+                ""
+              )}
               <Row>
                 <RowIntro themestate={theme}>{`Languages:`}</RowIntro>
                 {item.languages.map((lang, idx) => (

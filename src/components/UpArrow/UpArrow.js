@@ -5,6 +5,7 @@ import { hoverSupported } from "../hoverSupported";
 
 const Wrapper = styled(motion.button)`
   position: fixed;
+  z-index: 9999;
   cursor: pointer;
   bottom: 24px;
   right: 24px;

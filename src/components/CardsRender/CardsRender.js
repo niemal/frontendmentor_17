@@ -188,7 +188,7 @@ function Row({
   setRowHeight,
   ...props
 }) {
-  const { showArrow, setShowArrow } = useContext(CardsContext);
+  const { setShowArrow } = useContext(CardsContext);
   const { items, theme } = data;
   const rowRef = useRef(null);
   const rowItems = [];
@@ -207,7 +207,7 @@ function Row({
     } else if (index === 0) {
       setShowArrow(false);
     }
-  }, [rowRef]);
+  }, [rowRef, setRowHeight, index, setShowArrow]);
 
   let marker = tripleEntryRow ? 3 : 4;
 
@@ -262,7 +262,6 @@ function Row({
               }}
             >
               <CardWrapper
-                key={`${item.name}${index}`}
                 as={CardWrapper}
                 themestate={theme}
                 // style={{ ...style }}
@@ -305,8 +304,11 @@ function Row({
       </Wrapper>
     );
   }
+
+  console.log(`${item.name}${index}mobile-outer`, item);
   return (
     <MobileWrapper
+      key={`${item.name}${index}mobile-outer`}
       style={style}
       themestate={theme}
       initial={fadeInOut.initial}
@@ -316,18 +318,13 @@ function Row({
       transition={fadeInOut.transition}
     >
       <ClickableWrapper
-        key={`${item.name}${index}`}
+        key={`${item.name}${index}mobile-inner`}
         href={encodedURI}
         onClick={() => {
           window.location = encodedURI;
         }}
       >
-        <CardWrapper
-          key={`${item.name}${index}`}
-          layoutId={`card-${item.name}`}
-          as={CardWrapper}
-          themestate={theme}
-        >
+        <CardWrapper as={CardWrapper} themestate={theme}>
           <FlagContainer themestate={theme}>
             <Image
               src={item.flags.png}
@@ -395,10 +392,13 @@ const CardsRender = ({ scroller, ...props }) => {
     return rowHeights.current[index] || (isMobile ? 350 : 0);
   }, []);
 
-  const setRowHeight = useCallback((index, size) => {
-    scroller.ref.current?.resetAfterIndex(0);
-    rowHeights.current = { ...rowHeights.current, [index]: size };
-  }, []);
+  const setRowHeight = useCallback(
+    (index, size) => {
+      scroller.ref.current?.resetAfterIndex(0);
+      rowHeights.current = { ...rowHeights.current, [index]: size };
+    },
+    [scroller.ref]
+  );
 
   if (items.length === 0) {
     return (
@@ -411,9 +411,10 @@ const CardsRender = ({ scroller, ...props }) => {
   if (isMobile) {
     return (
       <CardsContext.Provider value={{ showArrow, setShowArrow }}>
-        <AnimatePresence mode={"wait"}>
+        <AnimatePresence>
           {showArrow ? (
             <UpArrow
+              key={"up-arrow-mobile"}
               theme={theme}
               onClick={() => {
                 scroller.ref?.current?.scrollTo(0);
@@ -428,7 +429,7 @@ const CardsRender = ({ scroller, ...props }) => {
             outerElementType={OuterElement}
             height={window.innerHeight}
             itemCount={items.length}
-            itemSize={400}
+            itemSize={380}
             width={"100%"}
             itemData={{ items, theme }}
             style={scroller.style}

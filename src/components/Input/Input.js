@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FixedSizeList as List } from "react-window";
 import { QUERIES } from "../constants";
 import { isMobile } from "react-device-detect";
-import ClickableWrapper from "../ClickableWrapper";
 
 const Wrapper = styled.div`
   position: relative;
@@ -270,12 +269,10 @@ const MotionDiv = forwardRef((props, ref) => {
 });
 
 function Input() {
-  const { theme, items, setItems, region, data, setData } =
-    useContext(MainContext);
+  const { theme, items, setItems, region } = useContext(MainContext);
 
   const {
     isOpen,
-    getMenuProps,
     getInputProps,
     highlightedIndex,
     getItemProps,
@@ -343,10 +340,10 @@ function Input() {
   useEffect(() => {
     setItems(filteredItems);
     setIsItemsEmpty(filteredItems.length === 0);
-  }, [filteredItems]);
+  }, [filteredItems, setItems]);
   useEffect(() => {
     setItems(filteredItems);
-  }, [filteredItems]);
+  }, [filteredItems, setItems]);
 
   return (
     <Wrapper>

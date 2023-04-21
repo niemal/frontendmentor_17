@@ -1,4 +1,4 @@
-Updated: Can't make context last from the redirections due to github not allowing client-side routing (huh), so the theme state and everything will be lost once a sub-directory is hit. This problem would not be on a dedicated host.
+Updated: Can't make context last from the redirections due to github not allowing client-side routing, so the theme state and everything will be lost once a sub-directory is hit. This problem would not be on a dedicated host.
 
 # Frontend Mentor - REST Countries API with color theme switcher solution
 

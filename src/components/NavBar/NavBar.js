@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { MainContext } from "../MainBody";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
-import { Link } from "wouter";
 import { QUERIES } from "../constants";
 import ClickableWrapper from "../ClickableWrapper";
 
